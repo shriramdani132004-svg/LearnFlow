@@ -1,0 +1,42 @@
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '../generated/prisma/client';
+
+@Injectable()
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
+  private readonly logger = new Logger(PrismaService.name);
+
+  constructor(config: ConfigService) {
+    const connectionString = config.get<string>('databaseUrl');
+    if (!connectionString) {
+      throw new Error('DATABASE_URL is required');
+    }
+    super({
+      adapter: new PrismaPg({ connectionString, max: 10 }),
+      log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
+    });
+  }
+
+  async onModuleInit(): Promise<void> {
+    await this.$connect();
+    this.logger.log('Prisma client connected');
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    await this.$disconnect();
+  }
+
+  async isReady(): Promise<boolean> {
+    try {
+      await this.$queryRaw`SELECT 1`;
+      return true;
+    } catch (error) {
+      this.logger.error('Database readiness check failed', error as Error);
+      return false;
+    }
+  }
+}

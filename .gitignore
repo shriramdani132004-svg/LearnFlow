@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+out/
+.next/
+*.tsbuildinfo
+
+# environment
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# test / coverage
+coverage/
+test-results/
+playwright-report/
+
+# generated static hosting output
+apps/api/public/
+apps/web/out/
+apps/api/src/generated/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# local tooling
+*.local
